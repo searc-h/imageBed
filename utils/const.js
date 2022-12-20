@@ -9,7 +9,7 @@ const SUFFIXES = {                  //合法后缀
     webp:true,
     gif:true
 }
-const MAX_SIZE = 20480              //文件大小上限
+const MAX_SIZE = 1024 * 1024 * 5    //文件大小上限 5MB
 const IMAGE_URL = 'img'             //图片url前缀
 const IMAGE_DIRECTORY = './imgs'    //本地保存图片路径
 

@@ -1,0 +1,27 @@
+
+        *{
+            padding: 0;
+            margin: 0;
+
+        }
+        html{
+            width: 100vw;
+            height: 100vh;
+        }
+        body{
+            height: 100%;
+            width: 100%;
+            background-color: aliceblue;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .text{
+            font-size: 40px;
+            user-select: none;
+        }
+        .text.active{
+            color: aqua;
+        }
+    

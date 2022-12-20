@@ -16,5 +16,10 @@ npm run dev
 ```
 *本地访问地址*
 ```
-localhost:8080
+http://localhost:8080/assets/
 ```
+
+### 说明
+- 感兴趣的可以对前端界面进行优化
+- 单张图片最大5MB
+- 提交确认后会自动跳转到浏览器的response界面，请注意截图或复制url

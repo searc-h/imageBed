@@ -11,7 +11,8 @@ function checkSuffix(suffix){
 
 
 /**
- * @descriptioin 校验文件大小
+ * @limited 5M
+ * @descriptioin 校验文件大小 
  * @param {*} size 
  * @returns boolean
  */

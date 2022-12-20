@@ -35,7 +35,7 @@ app.all("*", (req, res, next) => {
   })
 
 app.use('/img',express.static('./imgs'))    //配置静态资源
-
+app.use('/assets',express.static('assets'))
 
 
 //删除文件
@@ -43,6 +43,8 @@ function deleteFile(file){
     console.log('删除文件：',file)
     fs.unlinkSync(file)
 }
+
+
 
 //接受单个文件
 app.post('/upload/singleImage',upload.single('file'),(req,res)=>{
@@ -58,7 +60,9 @@ app.post('/upload/singleImage',upload.single('file'),(req,res)=>{
     }
 
 
-    let originalName = file.originalname
+    let suffix = file.originalname.split('.').reverse()[0]
+
+    let originalName = file.fieldname + "." + suffix
 
     //校验文件名称格式
     if(originalName.split('.').length != 2){
@@ -67,8 +71,6 @@ app.post('/upload/singleImage',upload.single('file'),(req,res)=>{
         return
     }
 
-
-    let suffix = originalName.split('.')[1]
 
     //校验文件大小
     if(!checkSize(file.size)){
@@ -143,16 +145,16 @@ app.post('/upload/multiImages',upload.array('files',9),(req,res)=>{
         }
         results[idx] = result
         
-        //校验文件名称格式
-        let originalName = file.originalname
+        let suffix = file.originalname.split('.').reverse()[0]
+
+        let originalName = file.fieldname + "." + suffix
+        
         if(originalName.split('.').length != 2){
             result.err = '图片名称格式错误！'
             deleteFile(tempFile)
             continue
         }
 
-        //校验文件后缀
-        let suffix = originalName.split('.')[1]
         if(!checkSuffix(suffix)){
             result.err = '图片类型错误！'
             deleteFile(tempFile)
