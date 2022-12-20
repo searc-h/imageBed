@@ -1,0 +1,7 @@
+node_modules
+dist
+
+files
+imgs
+filedownloading.js
+fileuploading.js
