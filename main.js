@@ -35,7 +35,7 @@ app.all("*", (req, res, next) => {
   })
 
 app.use('/img',express.static('./imgs'))    //配置静态资源
-app.use('/assets',express.static('assets'))
+app.use('/assets',express.static('assets'))  
 
 
 //删除文件
@@ -64,6 +64,14 @@ app.post('/upload/singleImage',upload.single('file'),(req,res)=>{
 
     let originalName = file.fieldname + "." + suffix
 
+
+    //校验文件后缀
+    if(!checkSuffix(suffix)){
+        res.send(err('图片格式错误！'))
+        res.end()
+        return
+    }
+
     //校验文件名称格式
     if(originalName.split('.').length != 2){
         res.send(err('图片名称格式错误！'))
@@ -74,17 +82,11 @@ app.post('/upload/singleImage',upload.single('file'),(req,res)=>{
 
     //校验文件大小
     if(!checkSize(file.size)){
-        res.send(err('图片过大！请确保图片大小在20k以内！'))
+        res.send(err('图片过大！请确保图片大小在5M以内！'))
         res.end()
         return
     }
 
-    //校验文件后缀
-    if(!checkSuffix(suffix)){
-        res.send(err('图片格式错误！'))
-        res.end()
-        return
-    }
 
     //暂存图像二进制文件路径
     let tempFile = file.path
@@ -206,5 +208,5 @@ app.post('/upload/multiImages',upload.array('files',9),(req,res)=>{
 })
 
 let server = app.listen(PORT,()=>{
-    console.log(`picture hosting service is listening on port ${PORT}`)
+    console.log(`picture hosting service is listening on port ${PORT} and click:  http://localhost:8080/assets`)
 })
