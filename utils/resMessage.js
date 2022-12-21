@@ -13,7 +13,7 @@ function resultMessage(code,message,data = null){
 // }
 
 //带数据的正确返回结果
-function ok(data=null){
+function okMes(data=null){
     if(data)
     return resultMessage(200,'ok',data)
 
@@ -21,10 +21,10 @@ function ok(data=null){
 }
 
 //错误返回结果
-function err(message){
+function errMes(message){
     return resultMessage(400,message)
 }
 module.exports = {
-    err,
-    ok
+    okMes,
+    errMes
 }

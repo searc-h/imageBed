@@ -2,7 +2,7 @@
 var express = require('express')
 var multer = require('multer')
 let {HOST , PORT , IMAGE_URL,IMAGE_DIRECTORY} = require('./utils/const')
-let {ok  , err} = require('./utils/resMessage')
+let {okMes  , errMes} = require('./utils/resMessage')
 let  {checkSuffix ,checkSize} = require('./utils/checkFile')
 let {randomStr , generateRandomFileName} = require('./utils/fileName')
 
@@ -54,7 +54,7 @@ app.post('/upload/singleImage',upload.single('file'),(req,res)=>{
     let file = req.file
 
     if(file == undefined){
-        res.send(err('未检测到文件！'))
+        res.send(errMes('未检测到文件！'))
         res.end()
         return
     }
@@ -67,14 +67,14 @@ app.post('/upload/singleImage',upload.single('file'),(req,res)=>{
 
     //校验文件后缀
     if(!checkSuffix(suffix)){
-        res.send(err('图片格式错误！'))
+        res.send(errMes('图片格式错误！'))
         res.end()
         return
     }
 
     //校验文件名称格式
     if(originalName.split('.').length != 2){
-        res.send(err('图片名称格式错误！'))
+        res.send(errMes('图片名称格式错误！'))
         res.end()
         return
     }
@@ -82,7 +82,7 @@ app.post('/upload/singleImage',upload.single('file'),(req,res)=>{
 
     //校验文件大小
     if(!checkSize(file.size)){
-        res.send(err('图片过大！请确保图片大小在5M以内！'))
+        res.send(errMes('图片过大！请确保图片大小在5M以内！'))
         res.end()
         return
     }
@@ -98,28 +98,25 @@ app.post('/upload/singleImage',upload.single('file'),(req,res)=>{
     // 读取二进制文件
     fs.readFile(tempFile,(err,data)=>{
         if(err){
-            res.send(err('图片保存错误！'))
+            res.send(errMes('图片保存错误！'))
             res.end()
             return
         }
-
         // 往/imgs文件夹中 存放 二进制转换后的图像文件
         fs.writeFileSync(filePath,data)
+        deleteFile(tempFile)
     })
 
     //构造url并返回
     let url = `http://${HOST}:${PORT}/${IMAGE_URL}/${fullFileName}`
-    res.send(ok(url))
+    res.send(okMes(url))
     res.end()
 
-    //删除缓存文件
-    deleteFile(tempFile)
     return
 })
 
 //接收多个文件
 app.post('/upload/multiImages',upload.array('files',9),(req,res)=>{
-    console.log(req.files)
     
     res.set({
       'content-type': 'application/json; charset=utf-8'
@@ -128,7 +125,7 @@ app.post('/upload/multiImages',upload.array('files',9),(req,res)=>{
     let files = req.files
 
     if(files == undefined){
-        res.send(err('未接收到文件！'))
+        res.send(errMes('未接收到文件！'))
         res.end()
         return
     }
@@ -140,7 +137,7 @@ app.post('/upload/multiImages',upload.array('files',9),(req,res)=>{
     for(let idx in files){
         let file = files[idx]
         let tempFile = file.path
-        result = {
+        let result = {
             name:file.originalname,
             url:'',
             err:''
@@ -165,7 +162,7 @@ app.post('/upload/multiImages',upload.array('files',9),(req,res)=>{
 
         //校验文件大小
         if(!checkSize(file.size)){
-            result.err = '图片过大！请确保图片大小在20k以内！'
+            result.err = '图片过大！请确保图片大小在5MB以内！'
             deleteFile(tempFile)
             continue
         }
@@ -183,9 +180,9 @@ app.post('/upload/multiImages',upload.array('files',9),(req,res)=>{
                 flag = false
             }else{
                 fs.writeFileSync(filePath,data)
+                //删除缓存文件
+                deleteFile(tempFile)
             }
-
-            
         })
 
 
@@ -196,12 +193,11 @@ app.post('/upload/multiImages',upload.array('files',9),(req,res)=>{
             result.url = url
         }
 
-        //删除缓存文件
-        deleteFile(tempFile)
+        
     }
 
     //返回信息列表
-    res.send(ok(results))
+    res.send(okMes(results))
     res.end()
 
     return
