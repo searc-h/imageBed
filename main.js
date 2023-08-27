@@ -5,6 +5,7 @@ let {HOST , PORT , IMAGE_URL,IMAGE_DIRECTORY} = require('./utils/const')
 let {okMes  , errMes} = require('./utils/resMessage')
 let  {checkSuffix ,checkSize} = require('./utils/checkFile')
 let {randomStr , generateRandomFileName} = require('./utils/fileName')
+const crawler = require('crawler-request');
 
 var fs = require('fs')
 
@@ -32,9 +33,10 @@ app.all("*", (req, res, next) => {
       "Origin, X-Requested-With, Content-Type, Accept, If-Modified-Since"
     );
     next();
-  })
+})
 
-app.use('/img',express.static('./imgs'))    //配置静态资源
+app.use('/img', express.static('./imgs'))    //配置静态资源
+
 app.use('/assets',express.static('assets'))  
 
 
@@ -201,6 +203,54 @@ app.post('/upload/multiImages',upload.array('files',9),(req,res)=>{
     res.end()
 
     return
+})
+
+
+// 上传pdf 后解析pdf内容
+app.post('/upload/pdf',upload.single('file'), function (req, res, next) {
+
+    let file = req.file
+
+    if(file == undefined){
+        res.send(errMes('未检测到文件！'))
+        res.end()
+        return
+    }
+
+
+    let suffix = file.originalname.split('.').reverse()[0]
+
+    let originalName = file.fieldname + "." + suffix
+
+     //暂存二进制文件路径
+     let tempFile = file.path
+
+     let fileName = generateRandomFileName();
+     let fullFileName = `${fileName}.${suffix}`
+     let filePath = `${IMAGE_DIRECTORY}/${fullFileName}`
+ 
+     // 读取二进制文件
+     fs.readFile(tempFile,(err,data)=>{
+         if(err){
+             res.send(errMes('文件保存错误！'))
+             res.end()
+             return
+         }
+         // 往/imgs文件夹中 存放 二进制转换后的图像文件
+         fs.writeFileSync(filePath,data)
+         deleteFile(tempFile)
+     })
+ 
+     //构造url并返回
+     let url = `http://${HOST}:${PORT}/${IMAGE_URL}/${fullFileName}`
+     crawler(url).then(function(response){
+        // handle response
+        console.log("解析pdf")
+         console.log(response.text);
+         res.end(response.text)
+    });
+   
+     return
 })
 
 let server = app.listen(PORT,()=>{
